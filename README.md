@@ -25,6 +25,37 @@ updates:
 
 ## Available workflows
 
+### cla.yaml
+
+Ensure any code contributors have signed the [Shopify CLA](https://cla.shopify.com).
+
+<details>
+<summary>Example Workflow</summary>
+
+```yaml
+name: Contributor License Agreement (CLA)
+
+on:
+  pull_request_target:
+    types: [opened, synchronize]
+  issue_comment:
+    types: [created]
+
+permissions: {}
+
+jobs:
+  cla:
+    uses: Shopify/github-workflows/.github/workflows/cla.yaml@c142f2dd84228c90bd716e4b5eafc68bd812f467 # v0.0.3
+    permissions:
+      pull-requests: write
+    secrets:
+      token: ${{secrets.GITHUB_TOKEN}}
+      cla-token: ${{secrets.CLA_TOKEN}}
+```
+
+</details>
+
+
 ### scorecard.yaml
 
 Publish an [OpenSSF Scorecard](https://securityscorecards.dev/) for a project.
