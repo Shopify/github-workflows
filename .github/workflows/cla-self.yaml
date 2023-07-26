@@ -1,4 +1,4 @@
-name: Contributor License Agreement (CLA)
+name: CLA (Self)
 
 on:
   pull_request_target:
