@@ -1,0 +1,39 @@
+# Publish an OpenSSF Scorecard
+#
+# This should be called on:
+# - branch_protection_rule:
+# - schedule: at least weekly (suggested)
+# - push: to the default branch (optional)
+
+name: Scorecard analysis workflow
+on:
+  workflow_call:
+    secrets:
+      token:
+        required: true
+        description: GitHub token. This can be ${{secrets.GITHUB_TOKEN]}, or a fine-grained PAT granting read-only access.
+
+permissions: {}
+
+jobs:
+  analysis:
+    name: Scorecard analysis
+    # Shopify tends to use another runner pool, but ScoreCard's API trusts GitHub runners more.
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: "Checkout code"
+        uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab # v3.5.2
+        with:
+          persist-credentials: false
+
+      - name: "Run analysis"
+        uses: ossf/scorecard-action@08b4669551908b1024bb425080c797723083c031 # v2.2.0
+        with:
+          results_file: results.sarif
+          results_format: sarif
+          repo_token: ${{secrets.token}}
+          publish_results: true
