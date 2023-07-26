@@ -2,7 +2,7 @@
 
 GitHub reusable workflows for common Shopify tasks.
 
-## Setting up
+## Using a workflow
 
 We suggest you reference workflows in this repository by their git commit.
 If you include a commit and tag on the same line, Dependabot will maintain both references. Example: `uses: Shopify/github-workflows/.github/workflows/scorecard.yaml@0cd53e568340d24a2aefc65236f0973b47402c14 # v0.0.1`
@@ -23,7 +23,7 @@ updates:
   
 </details>
 
-## Workflows
+## Available Workflows
 
 ### scorecard.yaml
 
