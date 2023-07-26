@@ -30,6 +30,8 @@ updates:
 Publish an [OpenSSF Scorecard](https://securityscorecards.dev/) for a project.
 Use this in public repositories, so that consumers can be assured of Shopify's security practices.
 
+Consider adding a badge like `https://api.securityscorecards.dev/projects/github.com/Shopify/github-workflows/badge`.
+
 <details>
 <summary>Example Workflow</summary>
   
