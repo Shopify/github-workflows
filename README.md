@@ -15,12 +15,12 @@ Create/modify the `.github/dependabot.yaml` file in your repository. Make sure t
 ```yaml
 version: 2
 updates:
-- package-ecosystem: github-actions
-  directory: /
-  schedule:
-    interval: weekly
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
 ```
-  
+
 </details>
 
 ## Available workflows
@@ -34,18 +34,18 @@ Consider adding a badge like `https://api.securityscorecards.dev/projects/github
 
 <details>
 <summary>Example Workflow</summary>
-  
+
 ```yaml
 name: Scorecard
 on:
   branch_protection_rule:
   schedule:
-    - cron: '30 1 * * 6'
+    - cron: "30 1 * * 6"
 
 permissions: {}
 
 jobs:
-  build:
+  analysis:
     permissions:
       contents: read
       id-token: write
@@ -53,4 +53,5 @@ jobs:
     secrets:
       token: ${{secrets.GITHUB_TOKEN}}
 ```
+
 </details>
