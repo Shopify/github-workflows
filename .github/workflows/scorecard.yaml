@@ -11,7 +11,7 @@ on:
     secrets:
       token:
         required: true
-        description: GitHub token. This can be ${{secrets.GITHUB_TOKEN}}, or a fine-grained PAT granting read-only access.
+        description: GitHub token. This can be secrets.GITHUB_TOKEN, or a fine-grained PAT granting read-only access.
 
 permissions: {}
 
