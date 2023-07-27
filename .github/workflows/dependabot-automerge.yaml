@@ -43,21 +43,21 @@ jobs:
     steps:
       - name: Validate inputs
         run: |
-          echo "all=${{ github.event.inputs.all }}"
-          if [[ ! "${{ github.event.inputs.all }}" =~ ^(all|none|major|minor|patch)$ ]]; then
-            echo "Invalid input: all=${{ github.event.inputs.all }}"
+          echo "all=${{ inputs.all }}"
+          if [[ ! "${{ inputs.all }}" =~ ^(all|none|major|minor|patch)$ ]]; then
+            echo "Invalid input: all=${{ inputs.all }}"
             exit 1
           fi
 
-          echo "actions=${{ github.event.inputs.actions }}"
-          if [[ ! "${{ github.event.inputs.actions }}" =~ ^(all|none|major|minor|patch)$ ]]; then
-            echo "Invalid input: actions=${{ github.event.inputs.actions }}"
+          echo "actions=${{ inputs.actions }}"
+          if [[ ! "${{ inputs.actions }}" =~ ^(all|none|major|minor|patch)$ ]]; then
+            echo "Invalid input: actions=${{ inputs.actions }}"
             exit 1
           fi
 
-          echo "npm=${{ github.event.inputs.npm }}"
-          if [[ ! "${{ github.event.inputs.npm }}" =~ ^(all|none|major|minor|patch)$ ]]; then
-            echo "Invalid input: npm=${{ github.event.inputs.npm }}"
+          echo "npm=${{ inputs.npm }}"
+          if [[ ! "${{ inputs.npm }}" =~ ^(all|none|major|minor|patch)$ ]]; then
+            echo "Invalid input: npm=${{ inputs.npm }}"
             exit 1
           fi
 
@@ -71,21 +71,21 @@ jobs:
         if: |
           steps.metadata.outputs.package-ecosystem == 'github_actions' &&
           (
-            (github.event.inputs.all == 'all' || github.event.inputs.actions == 'all') ||
+            (inputs.all == 'all' || inputs.actions == 'all') ||
             (
               steps.metadata.outputs.update-type == 'version-update:semver-major' &&
-              (github.event.inputs.all == 'major' || github.event.inputs.actions == 'major')
+              (inputs.all == 'major' || inputs.actions == 'major')
             ) ||
             (
               steps.metadata.outputs.update-type == 'version-update:semver-minor' &&
               (
-                (github.event.inputs.all == 'major' || github.event.inputs.actions == 'major') ||
-                (github.event.inputs.all == 'minor' || github.event.inputs.actions == 'minor')
+                (inputs.all == 'major' || inputs.actions == 'major') ||
+                (inputs.all == 'minor' || inputs.actions == 'minor')
               )
             ) ||
             (
               steps.metadata.outputs.update-type == 'version-update:semver-patch' &&
-              (github.event.inputs.all != 'none' || github.event.inputs.actions != 'none')
+              (inputs.all != 'none' || inputs.actions != 'none')
             )
           )
         env:
@@ -97,21 +97,21 @@ jobs:
         if: |
           steps.metadata.outputs.package-ecosystem == 'npm_and_yarn' &&
           (
-            (github.event.inputs.all == 'all' || github.event.inputs.npm == 'all') ||
+            (inputs.all == 'all' || inputs.npm == 'all') ||
             (
               steps.metadata.outputs.update-type == 'version-update:semver-major' &&
-              (github.event.inputs.all == 'major' || github.event.inputs.npm == 'major')
+              (inputs.all == 'major' || inputs.npm == 'major')
             ) ||
             (
               steps.metadata.outputs.update-type == 'version-update:semver-minor' &&
               (
-                (github.event.inputs.all == 'major' || github.event.inputs.npm == 'major') ||
-                (github.event.inputs.all == 'minor' || github.event.inputs.npm == 'minor')
+                (inputs.all == 'major' || inputs.npm == 'major') ||
+                (inputs.all == 'minor' || inputs.npm == 'minor')
               )
             ) ||
             (
               steps.metadata.outputs.update-type == 'version-update:semver-patch' &&
-              (github.event.inputs.all != 'none' || github.event.inputs.npm != 'none')
+              (inputs.all != 'none' || inputs.npm != 'none')
             )
           )
         env:
