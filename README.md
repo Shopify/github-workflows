@@ -25,6 +25,8 @@ updates:
 
 ## Available workflows
 
+<!-- Please keep this alphabetical and consistent <3 -->
+
 ### cla.yaml
 
 Ensure any code contributors have signed the [Shopify CLA](https://cla.shopify.com).
@@ -51,6 +53,44 @@ jobs:
     secrets:
       token: ${{secrets.GITHUB_TOKEN}}
       cla-token: ${{secrets.CLA_TOKEN}}
+```
+
+</details>
+
+
+### dependabot-automerge.yaml
+
+Automatically approve and merge Dependabot PRs matching certain criteria. Supports filtering by ecosystem and semver gap, such as "all actions minor+patch updates".
+
+Repositories using this workflow must:
+* Have `Allow auto-merge` [enabled](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/incorporating-changes-from-a-pull-request/automatically-merging-a-pull-request#enabling-auto-merge).
+* Have branch protection enabled, with the `Require status checks to pass before merging` option enforcing CI.
+
+
+<details>
+<summary>Example Workflow</summary>
+
+```yaml
+name: Dependabot auto-merge
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+    paths:
+      - '.github/workflows/**'
+
+permissions: {}
+
+jobs:
+  automerge:
+    permissions:
+      contents: write
+      pull-requests: write
+    uses: Shopify/github-workflows/.github/workflows/dependabot-automerge.yaml@c395c2cfd65be9a36f5dcfd21f4a2498a477fed4 # v0.0.6
+    with:
+      actions: minor
 ```
 
 </details>
