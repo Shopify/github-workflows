@@ -1,11 +1,13 @@
 # Automatically merge a Dependabot PR.
-# Users must opt into merging upgrades by their ecosystem and semver gap.
+# Should ONLY be used when the default branch is protected with CI check requirements.
+#
+# Users must opt into merging upgrades by ecosystem and semver gap, e.g. "minor upgrades to github actions" or "patch upgrades to npm".
 # Accepting major upgrades implies accepting minor and patch. Accepting minor implies patch.
 #
 # This should be called on:
 # - pull_request.{opened,reopened,synchronize}: ideally filtered to lockfile paths (e.g. go.sum, yarn.lock)
 
-name: Dependabot auto-merge
+# IDEA: maybe filter by package name? Could be workflow inputs, or we clone the repo's default branch and look for a `.github/automerge-allowlist.txt` or something.
 
 on:
   workflow_call:
@@ -95,7 +97,7 @@ jobs:
           UPDATE_TYPE: ${{ steps.metadata.outputs.update-type }}
           PR_URL: ${{ github.event.pull_request.html_url }}
         run: |
-          gh pr review --approve --body "Automerging Actions ${MERGE_ALL}/${MERGE_ECOSYSTEM} vs ${UPDATE_TYPE}" "$PR_URL"
+          gh pr review --approve --body "Merging this \`${UPDATE_TYPE}\` update (actions: \`${MERGE_ECOSYSTEM}\`, all: \`${MERGE_ALL}\`)" "$PR_URL"
           gh pr merge --auto --merge "$PR_URL"
 
       - name: Merge NPM update
@@ -126,5 +128,5 @@ jobs:
           UPDATE_TYPE: ${{ steps.metadata.outputs.update-type }}
           PR_URL: ${{ github.event.pull_request.html_url }}
         run: |
-          gh pr review --approve --body "Automerging NPM ${MERGE_ALL}/${MERGE_ECOSYSTEM} vs ${UPDATE_TYPE}" "$PR_URL"
+          gh pr review --approve --body "Merging this \`${UPDATE_TYPE}\` update (npm: \`${MERGE_ECOSYSTEM}\`, all: \`${MERGE_ALL}\`)" "$PR_URL"
           gh pr merge --auto --merge "$PR_URL"
