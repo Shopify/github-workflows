@@ -1,6 +1,6 @@
 # github-workflows
 
-GitHub reusable workflows for public Shopify repositories. Not specific to any implementation/ecosystem.
+GitHub reusable workflows for public Shopify repositories. Not specific to any language or ecosystem.
 
 ## Using a workflow
 
