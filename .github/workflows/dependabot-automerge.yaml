@@ -116,5 +116,10 @@ jobs:
           )
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MERGE_ALL: ${{ inputs.all }}
+          MERGE_ECOSYSTEM: ${{ inputs.npm }}
+          UPDATE_TYPE: ${{ steps.metadata.outputs.update-type }}
           PR_URL: ${{ github.event.pull_request.html_url }}
-        run: gh pr merge --auto --merge "$PR_URL"
+        run: |
+          gh pr review --approve --body "Automerging NPM ${MERGE_ALL}/${MERGE_ECOSYSTEM} vs ${UPDATE_TYPE}" "$PR_URL"
+          gh pr merge --auto --merge "$PR_URL"
