@@ -1,0 +1,132 @@
+# Automatically merge a Dependabot PR.
+# Should ONLY be used when the default branch is protected with CI check requirements.
+#
+# Users must opt into merging upgrades by ecosystem and semver gap, e.g. "minor upgrades to github actions" or "patch upgrades to npm".
+# Accepting major upgrades implies accepting minor and patch. Accepting minor implies patch.
+#
+# This should be called on:
+# - pull_request.{opened,reopened,synchronize}: ideally filtered to lockfile paths (e.g. go.sum, yarn.lock)
+
+# IDEA: maybe filter by package name? Could be workflow inputs, or we clone the repo's default branch and look for a `.github/automerge-allowlist.txt` or something.
+
+on:
+  workflow_call:
+    inputs:
+      all:
+        required: false
+        type: string
+        default: none
+        description: |
+          Upgrades to automatically merge. Valid values are: all, none, major, minor, patch.
+
+      # Prefer alphabetical, but "all" is special.
+      actions:
+        required: false
+        type: string
+        default: none
+        description: |
+          GitHub Actions upgrades to automatically merge. Valid values are: all, none, major, minor, patch.
+      npm:
+        required: false
+        type: string
+        default: none
+        description: |
+          NPM upgrades to automatically merge. Valid values are: all, none, major, minor, patch.
+
+permissions: {}
+
+jobs:
+  automerge:
+    runs-on: ubuntu-latest
+    if: github.actor == 'dependabot[bot]'
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Validate inputs
+        run: |
+          echo "all=${{ inputs.all }}"
+          if [[ ! "${{ inputs.all }}" =~ ^(all|none|major|minor|patch)$ ]]; then
+            echo "Invalid input: all=${{ inputs.all }}"
+            exit 1
+          fi
+
+          echo "actions=${{ inputs.actions }}"
+          if [[ ! "${{ inputs.actions }}" =~ ^(all|none|major|minor|patch)$ ]]; then
+            echo "Invalid input: actions=${{ inputs.actions }}"
+            exit 1
+          fi
+
+          echo "npm=${{ inputs.npm }}"
+          if [[ ! "${{ inputs.npm }}" =~ ^(all|none|major|minor|patch)$ ]]; then
+            echo "Invalid input: npm=${{ inputs.npm }}"
+            exit 1
+          fi
+
+      - name: Retrieve Dependabot metadata
+        id: metadata
+        uses: dependabot/fetch-metadata@c9c4182bf1b97f5224aee3906fd373f6b61b4526 # v1.6.0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Merge GitHub Actions update
+        if: |
+          steps.metadata.outputs.package-ecosystem == 'github_actions' &&
+          (
+            (inputs.all == 'all' || inputs.actions == 'all') ||
+            (
+              steps.metadata.outputs.update-type == 'version-update:semver-major' &&
+              (inputs.all == 'major' || inputs.actions == 'major')
+            ) ||
+            (
+              steps.metadata.outputs.update-type == 'version-update:semver-minor' &&
+              (
+                (inputs.all == 'major' || inputs.actions == 'major') ||
+                (inputs.all == 'minor' || inputs.actions == 'minor')
+              )
+            ) ||
+            (
+              steps.metadata.outputs.update-type == 'version-update:semver-patch' &&
+              (inputs.all != 'none' || inputs.actions != 'none')
+            )
+          )
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MERGE_ALL: ${{ inputs.all }}
+          MERGE_ECOSYSTEM: ${{ inputs.actions }}
+          UPDATE_TYPE: ${{ steps.metadata.outputs.update-type }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+        run: |
+          gh pr review --approve --body "Merging this \`${UPDATE_TYPE}\` update (actions: \`${MERGE_ECOSYSTEM}\`, all: \`${MERGE_ALL}\`)" "$PR_URL"
+          gh pr merge --auto --merge "$PR_URL"
+
+      - name: Merge NPM update
+        if: |
+          steps.metadata.outputs.package-ecosystem == 'npm_and_yarn' &&
+          (
+            (inputs.all == 'all' || inputs.npm == 'all') ||
+            (
+              steps.metadata.outputs.update-type == 'version-update:semver-major' &&
+              (inputs.all == 'major' || inputs.npm == 'major')
+            ) ||
+            (
+              steps.metadata.outputs.update-type == 'version-update:semver-minor' &&
+              (
+                (inputs.all == 'major' || inputs.npm == 'major') ||
+                (inputs.all == 'minor' || inputs.npm == 'minor')
+              )
+            ) ||
+            (
+              steps.metadata.outputs.update-type == 'version-update:semver-patch' &&
+              (inputs.all != 'none' || inputs.npm != 'none')
+            )
+          )
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MERGE_ALL: ${{ inputs.all }}
+          MERGE_ECOSYSTEM: ${{ inputs.npm }}
+          UPDATE_TYPE: ${{ steps.metadata.outputs.update-type }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+        run: |
+          gh pr review --approve --body "Merging this \`${UPDATE_TYPE}\` update (npm: \`${MERGE_ECOSYSTEM}\`, all: \`${MERGE_ALL}\`)" "$PR_URL"
+          gh pr merge --auto --merge "$PR_URL"
