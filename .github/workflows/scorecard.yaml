@@ -18,7 +18,6 @@ permissions: {}
 jobs:
   analysis:
     name: Scorecard analysis
-    # Shopify tends to use another runner pool, but ScoreCard's API trusts GitHub runners more.
     runs-on: ubuntu-latest
     if: github.repository_visibility == 'public'
     permissions:
