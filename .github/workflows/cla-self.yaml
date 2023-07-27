@@ -12,6 +12,7 @@ jobs:
   cla:
     uses: Shopify/github-workflows/.github/workflows/cla.yaml@main
     permissions:
+      actions: write
       pull-requests: write
     secrets:
       token: ${{secrets.GITHUB_TOKEN}}
