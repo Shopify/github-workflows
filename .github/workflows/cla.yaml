@@ -29,7 +29,7 @@ jobs:
       actions: write # to re-trigger workflows
       pull-requests: write # to add/remove labels
     steps:
-      - uses: Shopify/shopify-cla-action@1c5e9e39b803e4ed56c61a2f4bfd7a594c87c1f0 # v1.7.0
+      - uses: Shopify/shopify-cla-action@9938f4b43524d1cfa7471ce9a803edf226697284 # v1.8.0
         with:
           github-token: ${{ secrets.token }}
           cla-token: ${{ secrets.cla-token }}
