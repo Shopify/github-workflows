@@ -130,3 +130,34 @@ jobs:
         run: |
           gh pr review --approve --body "Merging this \`${UPDATE_TYPE}\` update (npm: \`${MERGE_ECOSYSTEM}\`, all: \`${MERGE_ALL}\`)" "$PR_URL"
           gh pr merge --auto --merge "$PR_URL"
+
+      - name: Merge Go update
+        if: |
+          steps.metadata.outputs.package-ecosystem == 'go_modules' &&
+          (
+            (inputs.all == 'all' || inputs.go_modules == 'all') ||
+            (
+              steps.metadata.outputs.update-type == 'version-update:semver-major' &&
+              (inputs.all == 'major' || inputs.go_modules == 'major')
+            ) ||
+            (
+              steps.metadata.outputs.update-type == 'version-update:semver-minor' &&
+              (
+                (inputs.all == 'major' || inputs.go_modules == 'major') ||
+                (inputs.all == 'minor' || inputs.go_modules == 'minor')
+              )
+            ) ||
+            (
+              steps.metadata.outputs.update-type == 'version-update:semver-patch' &&
+              (inputs.all != 'none' || inputs.go_modules != 'none')
+            )
+          )
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MERGE_ALL: ${{ inputs.all }}
+          MERGE_ECOSYSTEM: ${{ inputs.go_modules }}
+          UPDATE_TYPE: ${{ steps.metadata.outputs.update-type }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+        run: |
+          gh pr review --approve --body "Merging this \`${UPDATE_TYPE}\` update (go_modules: \`${MERGE_ECOSYSTEM}\`, all: \`${MERGE_ALL}\`)" "$PR_URL"
+          gh pr merge --auto --merge "$PR_URL"
