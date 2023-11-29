@@ -26,6 +26,12 @@ on:
         default: none
         description: |
           GitHub Actions upgrades to automatically merge. Valid values are: all, none, major, minor, patch.
+      gomod:
+        required: false
+        type: string
+        default: none
+        description: |
+          Go upgrades to automatically merge. Valid values are: all, none, major, minor, patch.
       npm:
         required: false
         type: string
@@ -54,6 +60,12 @@ jobs:
           echo "actions=${{ inputs.actions }}"
           if [[ ! "${{ inputs.actions }}" =~ ^(all|none|major|minor|patch)$ ]]; then
             echo "Invalid input: actions=${{ inputs.actions }}"
+            exit 1
+          fi
+
+          echo "gomod=${{ inputs.gomod }}"
+          if [[ ! "${{ inputs.gomod }}" =~ ^(all|none|major|minor|patch)$ ]]; then
+            echo "Invalid input: gomod=${{ inputs.gomod }}"
             exit 1
           fi
 
