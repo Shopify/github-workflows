@@ -26,6 +26,12 @@ on:
         default: none
         description: |
           GitHub Actions upgrades to automatically merge. Valid values are: all, none, major, minor, patch.
+      gomod:
+        required: false
+        type: string
+        default: none
+        description: |
+          Go upgrades to automatically merge. Valid values are: all, none, major, minor, patch.
       npm:
         required: false
         type: string
@@ -54,6 +60,12 @@ jobs:
           echo "actions=${{ inputs.actions }}"
           if [[ ! "${{ inputs.actions }}" =~ ^(all|none|major|minor|patch)$ ]]; then
             echo "Invalid input: actions=${{ inputs.actions }}"
+            exit 1
+          fi
+
+          echo "gomod=${{ inputs.gomod }}"
+          if [[ ! "${{ inputs.gomod }}" =~ ^(all|none|major|minor|patch)$ ]]; then
+            echo "Invalid input: gomod=${{ inputs.gomod }}"
             exit 1
           fi
 
@@ -129,4 +141,35 @@ jobs:
           PR_URL: ${{ github.event.pull_request.html_url }}
         run: |
           gh pr review --approve --body "Merging this \`${UPDATE_TYPE}\` update (npm: \`${MERGE_ECOSYSTEM}\`, all: \`${MERGE_ALL}\`)" "$PR_URL"
+          gh pr merge --auto --merge "$PR_URL"
+
+      - name: Merge Go update
+        if: |
+          steps.metadata.outputs.package-ecosystem == 'go_modules' &&
+          (
+            (inputs.all == 'all' || inputs.go_modules == 'all') ||
+            (
+              steps.metadata.outputs.update-type == 'version-update:semver-major' &&
+              (inputs.all == 'major' || inputs.go_modules == 'major')
+            ) ||
+            (
+              steps.metadata.outputs.update-type == 'version-update:semver-minor' &&
+              (
+                (inputs.all == 'major' || inputs.go_modules == 'major') ||
+                (inputs.all == 'minor' || inputs.go_modules == 'minor')
+              )
+            ) ||
+            (
+              steps.metadata.outputs.update-type == 'version-update:semver-patch' &&
+              (inputs.all != 'none' || inputs.go_modules != 'none')
+            )
+          )
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MERGE_ALL: ${{ inputs.all }}
+          MERGE_ECOSYSTEM: ${{ inputs.gomod }}
+          UPDATE_TYPE: ${{ steps.metadata.outputs.update-type }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+        run: |
+          gh pr review --approve --body "Merging this \`${UPDATE_TYPE}\` update (gomod: \`${MERGE_ECOSYSTEM}\`, all: \`${MERGE_ALL}\`)" "$PR_URL"
           gh pr merge --auto --merge "$PR_URL"
