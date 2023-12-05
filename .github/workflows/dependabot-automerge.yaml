@@ -38,6 +38,10 @@ on:
         default: none
         description: |
           NPM upgrades to automatically merge. Valid values are: all, none, major, minor, patch.
+    secrets:
+      token:
+        required: true
+        description: GitHub token - probably secrets.GITHUB_TOKEN
 
 permissions: {}
 
@@ -79,7 +83,7 @@ jobs:
         id: metadata
         uses: dependabot/fetch-metadata@c9c4182bf1b97f5224aee3906fd373f6b61b4526 # v1.6.0
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.token }}
 
       - name: Merge GitHub Actions update
         if: |
@@ -103,7 +107,7 @@ jobs:
             )
           )
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.token }}
           MERGE_ALL: ${{ inputs.all }}
           MERGE_ECOSYSTEM: ${{ inputs.actions }}
           UPDATE_TYPE: ${{ steps.metadata.outputs.update-type }}
@@ -134,7 +138,7 @@ jobs:
             )
           )
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.token }}
           MERGE_ALL: ${{ inputs.all }}
           MERGE_ECOSYSTEM: ${{ inputs.npm }}
           UPDATE_TYPE: ${{ steps.metadata.outputs.update-type }}
@@ -165,7 +169,7 @@ jobs:
             )
           )
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.token }}
           MERGE_ALL: ${{ inputs.all }}
           MERGE_ECOSYSTEM: ${{ inputs.gomod }}
           UPDATE_TYPE: ${{ steps.metadata.outputs.update-type }}
