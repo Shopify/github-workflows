@@ -41,8 +41,7 @@ on:
     secrets:
       token:
         required: true
-        default: ${{ secrets.GITHUB_TOKEN }}
-        description: GitHub token
+        description: GitHub token - probably secrets.GITHUB_TOKEN
 
 permissions: {}
 
