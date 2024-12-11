@@ -1,0 +1,87 @@
+name: Release
+
+on:
+  workflow_call:
+    inputs:
+      node-version:
+        description: 'Node.js version to use'
+        type: string
+        default: '20'
+      package-manager:
+        description: 'Package manager to use (npm or yarn)'
+        type: choice
+        options:
+          - npm
+          - yarn
+          - pnpm
+        default: 'npm'
+      release-command:
+        description: 'Command to run for release'
+        type: string
+        default: 'npm run release'
+    secrets:
+      NPM_TOKEN:
+        description: 'NPM token for publishing'
+        required: true
+
+permissions:
+  # changesets
+  contents: write
+  pull-requests: write
+
+  # for provenance (NPM or attest-build-provenance)
+  id-token: write
+
+  # for attest-build-provenance
+  attestations: write
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    steps:
+      # Setup: get the code and dependencies:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: 🏗️ Setup Node.js Environment
+        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
+        with:
+          node-version: ${{ inputs.node-version }}
+          cache: ${{ inputs.package-manager }}
+      - name: 🏗️ Install Project Dependencies
+        run: |
+          if [ "$PACKAGE_MANAGER" = "yarn" ]; then
+            yarn install
+          elif [ "$PACKAGE_MANAGER" = "pnpm" ]; then
+            pnpm install
+          else
+            npm install
+          fi
+        env:
+          PACKAGE_MANAGER: ${{ inputs.package-manager }}
+
+      # Delegate publishing to the changesets action:
+      # This creates the tag, github release, and uploads the tarball with provenance to NPM.
+      - name: 🚀 Process Changesets and Publish
+        id: changesets
+        uses: changesets/action@c8bada60c408975afd1a20b3db81d6eee6789308 # v1.4.9
+        with:
+          publish: ${{ inputs.release-command }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_CONFIG_PROVENANCE: true
+
+      # Store the generated artifact on the GitHub release, with attested provenance
+      - name: 🔐 Generate Build Provenance
+        if: steps.changesets.outputs.published == 'true'
+        uses: actions/attest-build-provenance@7668571508540a607bdfd90a87a560489fe372eb # v2.1.0
+        with:
+          subject-path: "*.tgz"
+      - name: 📥 Upload to GitHub
+        if: steps.changesets.outputs.published == 'true'
+        run: |
+          VERSION=$(jq -r .version package.json)
+          gh release upload "v${VERSION}" "*.tgz"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
