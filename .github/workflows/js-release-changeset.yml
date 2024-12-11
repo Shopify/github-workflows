@@ -81,6 +81,8 @@ jobs:
         if: steps.changesets.outputs.published == 'true'
         run: |
           VERSION=$(jq -r .version package.json)
-          gh release upload "v${VERSION}" "*.tgz"
+          for file in *.tgz; do
+            gh release upload "v${VERSION}" "$file"
+          done
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
