@@ -4,20 +4,20 @@ on:
   workflow_call:
     inputs:
       node-version:
-        description: 'Node.js version to use'
+        description: "Node.js version to use"
         type: string
-        default: '20'
+        default: "20"
       package-manager:
-        description: 'Package manager to use (npm or yarn)'
+        description: "Package manager to use (npm, pnpm, or yarn)"
         type: string
-        default: 'npm'
+        default: "npm"
       release-command:
-        description: 'Command to run for release'
+        description: "Command to run for release"
         type: string
-        default: 'npm run release'
+        default: "npm run release"
     secrets:
       NPM_TOKEN:
-        description: 'NPM token for publishing'
+        description: "NPM token for publishing"
         required: true
 
 permissions:
@@ -39,6 +39,9 @@ jobs:
       # Setup: get the code and dependencies:
       - name: 📥 Checkout Repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: 🏗️ Setup PNPM
+        if: inputs.package-manager == 'pnpm'
+        uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2 # v4.0.0
       - name: 🏗️ Setup Node.js Environment
         uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
         with:
