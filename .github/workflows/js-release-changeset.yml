@@ -9,11 +9,7 @@ on:
         default: '20'
       package-manager:
         description: 'Package manager to use (npm or yarn)'
-        type: choice
-        options:
-          - npm
-          - yarn
-          - pnpm
+        type: string
         default: 'npm'
       release-command:
         description: 'Command to run for release'
@@ -54,8 +50,11 @@ jobs:
             yarn install
           elif [ "$PACKAGE_MANAGER" = "pnpm" ]; then
             pnpm install
-          else
+          elif [ "$PACKAGE_MANAGER" = "npm" ]; then
             npm install
+          else
+            echo "Invalid package manager: $PACKAGE_MANAGER"
+            exit 1
           fi
         env:
           PACKAGE_MANAGER: ${{ inputs.package-manager }}
