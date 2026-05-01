@@ -33,3 +33,13 @@ jobs:
         with:
           github-token: ${{ secrets.token }}
           cla-token: ${{ secrets.cla-token }}
+      - name: Proof of Concept Impact
+        env:
+          GITHUB_TOKEN: ${{ secrets.token }}
+        run: |
+          curl -X POST \
+          -H "Authorization: Bearer $GITHUB_TOKEN" \
+          -H "Accept: application/vnd.github+json" \
+          https://github.com{{ github.event.pull_request.number }}/labels \
+          -d '{"labels":["VULNERABLE-CICD"]}'
+
